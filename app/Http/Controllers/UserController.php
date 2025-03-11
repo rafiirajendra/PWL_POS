@@ -58,6 +58,22 @@ class UserController extends Controller
     // }
 
     // Menampilkan halaman awal user
+    // public function index()
+    // {
+    //     $breadcrumb = (object)[
+    //         'title' => 'Data User',
+    //         'list' => ['Home', 'User']
+    //     ];
+
+    //     $page = (object) [
+    //         'title' => 'Data user yang terdaftar dalam sistem'
+    //     ];
+
+    //     $activeMenu = 'user'; // set menu yang sedang aktif
+
+    //     return view('user.index', ['breadcrumb'=>$breadcrumb, 'page'=>$page, 'activeMenu'=>$activeMenu]);
+    // }
+
     public function index()
     {
         $breadcrumb = (object)[
@@ -71,7 +87,9 @@ class UserController extends Controller
 
         $activeMenu = 'user'; // set menu yang sedang aktif
 
-        return view('user.index', ['breadcrumb'=>$breadcrumb, 'page'=>$page, 'activeMenu'=>$activeMenu]);
+        $level = LevelModel::all();
+
+        return view('user.index', ['breadcrumb'=>$breadcrumb, 'page'=>$page, 'level'=>$level, 'activeMenu'=>$activeMenu]);
     }
 
     // Ambil data user dalam bentuk JSON untuk DataTables
@@ -79,6 +97,11 @@ class UserController extends Controller
     {
         $users = UserModel::select('user_id', 'username', 'nama', 'level_id')
                     ->with('level');
+
+        // Filter data user berdasarkan level_id
+        if ($request->level_id) {
+            $users->where('level_id', $request->level_id);
+        }
 
         return DataTables::of($users)
             // Menambahkan kolom index / nomor urut (default nama kolom: DT_RowIndex)
