@@ -52,7 +52,12 @@
           <p>Data Barang</p>
         </a>
       </li>
-
+      <li class="nav-item">
+        <a href="{{ url('/') }}" class="nav-link {{ ($activeMenu == '') ? 'active' : '' }}">
+          <i class="nav-icon fas fa-truck"></i>
+          <p>Data Suplier</p>
+        </a>
+      </li>
       <!-- Data Transaksi -->
       <li class="nav-header">Data Transaksi</li>
       <li class="nav-item">
