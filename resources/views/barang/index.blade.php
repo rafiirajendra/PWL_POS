@@ -6,6 +6,7 @@
       <h3 class="card-title">{{ $page->title }}</h3>
       <div class="card-tools">
         <a class="btn btn-sm btn-primary mt-1" href="{{ url('barang/create') }}">Tambah</a>
+        <button onclick="modalAction('{{ url('barang/create_ajax') }}')" class="btn btn-sm btn-success mt-1">Tambah Ajax</button>
       </div>
     </div>
     <div class="card-body">
@@ -18,15 +19,15 @@
       <div class="row">
         <div class="col-md-12">
           <div class="form-group row">
-            <label class="form-control">Filter:</label>
+            <label class="form-control">Filter Kategori:</label>
             <div class="col-3">
-              <select class="form-control" name="barang_kode" id="barang_kode" required>
-                <option value="">- semua -</option>
-                @foreach($barang as $item)
-                  <option value="{{$item->barang_kode}}">{{$item->barang_nama}}</option>
+              <select class="form-control" name="kategori_id" id="kategori_id" required>
+                <option value="">== KATEGORI ID ==</option>
+                @foreach($kategori as $kat)
+                  <option value="{{ $kat->kategori_id }}">{{ $kat->kategori_id }}</option>
                 @endforeach
               </select>
-              <small class="form-text text-muted">barang Kode</small>
+              <small class="form-text text-muted">Kategori ID</small>
             </div>
           </div>
         </div>
@@ -35,15 +36,19 @@
       <table class="table table-bordered table-striped table-hover table-sm" id="table_barang">
         <thead>
             <tr>
-                <th>ID</th>
-                <th>barang Kode</th>
-                <th>barang Nama</th>
+                <th>Barang ID</th>
+                <th>Kode Barang</th>
+                <th>Kategori ID</th>
+                <th>Nama Barang</th>
+                <th>Harga Beli</th>
+                <th>Harga Jual</th>
                 <th>Aksi</th>
             </tr>
         </thead>
       </table>
     </div>
   </div>
+  <div id="myModal" class="modal fade animate shake" tabindex="-1" role="dialog" databackdrop="static" data-keyboard="false" data-width="75%" aria-hidden="true"></div> 
 @endsection
 
 @push('css')
@@ -51,6 +56,12 @@
 
 @push('js')
   <script>
+    function modalAction(url = '') {
+      $('#myModal').load(url, function() {
+        $('#myModal').modal('show');
+      });
+    }
+
     $(document).ready(function() {
       var databarang = $('#table_barang').DataTable({
         processing: true,
@@ -60,7 +71,7 @@
           dataType: "json",
           type: "POST",
           "data": function (d){
-            d.barang_id = $('#barang_kode').val();
+            d.barang_id = $('#barang_id').val();
           }
           
         },
@@ -68,8 +79,8 @@
           {
             data: "barang_id",
             className: "",
-            orderable: true, // Kolom ini bisa diurutkan
-            searchable: true // Kolom ini bisa dicari
+            orderable: true, 
+            searchable: true 
           },
           {
             data: "barang_kode",
@@ -78,7 +89,25 @@
             searchable: true
           },
           {
-            data: "barang_nama", // Mengambil data level hasil dari ORM berelasi
+            data: "kategori_id",
+            className: "",
+            orderable: false,
+            searchable: false
+          },
+          {
+            data: "barang_nama",
+            className: "",
+            orderable: false,
+            searchable: false
+          },
+          {
+            data: "harga_beli",
+            className: "",
+            orderable: false,
+            searchable: false
+          },
+          {
+            data: "harga_jual",
             className: "",
             orderable: false,
             searchable: false
@@ -93,7 +122,7 @@
       });
 
       $('#barang_id').on('change', function(){
-        dataUser.ajax.reload();
+        databarang.ajax.reload();
       });
     });
   </script>

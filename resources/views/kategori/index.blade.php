@@ -6,6 +6,7 @@
       <h3 class="card-title">{{ $page->title }}</h3>
       <div class="card-tools">
         <a class="btn btn-sm btn-primary mt-1" href="{{ url('kategori/create') }}">Tambah</a>
+        <button onclick="modalAction('{{ url('kategori/create_ajax') }}')" class="btn btn-sm btn-success mt-1">Tambah Ajax</button>
       </div>
     </div>
     <div class="card-body">
@@ -21,12 +22,12 @@
             <label class="form-control">Filter:</label>
             <div class="col-3">
               <select class="form-control" name="kategori_kode" id="kategori_kode" required>
-                <option value="">- semua -</option>
+                <option value="">== NAMA KATEGORI ==</option>
                 @foreach($kategori as $item)
                   <option value="{{$item->kategori_kode}}">{{$item->kategori_nama}}</option>
                 @endforeach
               </select>
-              <small class="form-text text-muted">Kategori Kode</small>
+              <small class="form-text text-muted">Nama Kategori</small>
             </div>
           </div>
         </div>
@@ -36,14 +37,15 @@
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Kategori Kode</th>
-                <th>Kategori Nama</th>
+                <th>Kode Kategori</th>
+                <th>Nama Kategori</th>
                 <th>Aksi</th>
             </tr>
         </thead>
       </table>
     </div>
   </div>
+  <div id="myModal" class="modal fade animate shake" tabindex="-1" role="dialog" databackdrop="static" data-keyboard="false" data-width="75%" aria-hidden="true"></div> 
 @endsection
 
 @push('css')
@@ -51,6 +53,12 @@
 
 @push('js')
   <script>
+    function modalAction(url = '') {
+      $('#myModal').load(url, function() {
+        $('#myModal').modal('show');
+      });
+    }
+
     $(document).ready(function() {
       var dataKategori = $('#table_kategori').DataTable({
         processing: true,
@@ -60,7 +68,7 @@
           dataType: "json",
           type: "POST",
           "data": function (d){
-            d.kategori_id = $('#kategori_kode').val();
+            d.kategori_kode = $('#kategori_kode').val();
           }
           
         },
@@ -92,8 +100,8 @@
         ]
       });
 
-      $('#kategori_id').on('change', function(){
-        dataUser.ajax.reload();
+      $('#kategori_kode').on('change', function(){
+        dataKategori.ajax.reload();
       });
     });
   </script>

@@ -30,7 +30,7 @@
                 </div>
 
                 <div class="form-group row">
-                    <label class="col-1 control-label col-form-label">Level Nama</label>
+                    <label class="col-1 control-label col-form-label">Nama Level</label>
                     <div class="col-11">
                         <input type="text" class="form-control" id="level_nama" name="level_nama"
                                value="{{ old('level_nama', $level->level_nama) }}" required>
