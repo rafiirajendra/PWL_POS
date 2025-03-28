@@ -58,8 +58,7 @@
                         </div>
                         <!-- /.col -->
                     </div>
-                </form>
-                <p class="mt-3 text-center">Belum punya akun? <a href="{{ url('register') }}">Daftar di sini</a></p>
+                </form><a href="{{ url('register') }}">Daftar di sini</a>
             </div>
             <!-- /.card-body -->
         </div>
