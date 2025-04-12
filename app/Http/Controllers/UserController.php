@@ -8,73 +8,11 @@ use App\Models\UserModel;
 use Illuminate\Support\Facades\Hash;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
-use function PHPSTORM_META\map;
 
 class UserController extends Controller
 {
-    // public function index(){
-    //     $user = UserModel::with('level')->get();
-    //     return view('user', ['data' => $user]);
-    // }
-
-    // public function tambah(){
-    //     return view('user_tambah');
-    // }
-
-    // public function tambah_simpan(Request $request)
-    // {
-    //     UserModel::create([
-    //         'username'=> $request->username,
-    //         'nama'=> $request->nama,
-    //         'password'=> Hash::make('$request->password'),
-    //         'level_id'=> $request->level_id
-    //     ]);
-
-    //     return redirect('/user');
-    // }
-
-    // public function ubah($id){
-    //     $user = UserModel::find($id);
-    //     return view('user_ubah', ['data'=> $user]);
-    // }
-
-    // public function ubah_simpan($id, Request $request){
-    //     $user = UserModel::find($id);
-        
-    //     $user->username = $request->username;
-    //     $user->nama = $request->nama;
-    //     $user->password = Hash::make('$request->password');
-    //     $user->level_id = $request->level_id;
-
-    //     $user->save();
-
-    //     return redirect('/user');
-    // }
-
-    // public function hapus($id){
-    //     $user = UserModel::find($id);
-    //     $user->delete();
-    //     return redirect('/user');
-    // }
-
-    // Menampilkan halaman awal user
-    // public function index()
-    // {
-    //     $breadcrumb = (object)[
-    //         'title' => 'Data User',
-    //         'list' => ['Home', 'User']
-    //     ];
-
-    //     $page = (object) [
-    //         'title' => 'Data user yang terdaftar dalam sistem'
-    //     ];
-
-    //     $activeMenu = 'user'; // set menu yang sedang aktif
-
-    //     return view('user.index', ['breadcrumb'=>$breadcrumb, 'page'=>$page, 'activeMenu'=>$activeMenu]);
-    // }
-
     public function index()
     {
         $breadcrumb = (object)[
@@ -359,5 +297,122 @@ class UserController extends Controller
             }
         }
         return redirect('/');
+    }
+
+    public function import()
+    {
+        return view('user.import');
+    }
+    public function import_ajax(Request $request)
+    {
+        if ($request->ajax() || $request->wantsJson()) {
+            $rules = [
+                'file_user' => ['required', 'mimes:xlsx', 'max:1024']
+            ];
+
+            $validator = Validator::make($request->all(), $rules);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'status'   => false,
+                    'message'  => 'Validasi Gagal',
+                    'msgField' => $validator->errors()
+                ]);
+            }
+
+            $file = $request->file('file_user');
+            $reader = IOFactory::createReader('Xlsx');
+            $reader->setReadDataOnly(true);
+            $spreadsheet = $reader->load($file->getRealPath());
+            $sheet = $spreadsheet->getActiveSheet();
+            $data = $sheet->toArray(null, false, true, true);
+
+            $insert = [];
+
+            if (count($data) > 1) {
+                foreach ($data as $baris => $value) {
+                    if ($baris > 1) {
+                        $insert[] = [
+                            'level_id' => $value['A'],
+                            'username' => $value['B'],
+                            'nama'     => $value['C'],
+                            'password' => Hash::make($value['D']),
+                            'created_at'  => now(),
+                        ];
+                    }
+                }
+
+                if (!empty($insert)) {
+                    UserModel::insertOrIgnore($insert);
+                }
+
+                return response()->json([
+                    'status'  => true,
+                    'message' => 'Data berhasil diimport'
+                ]);
+            }
+
+            return response()->json([
+                'status'  => false,
+                'message' => 'Tidak ada data yang diimport'
+            ]);
+        }
+
+        return redirect('/');
+    }
+
+    public function export_excel()
+    {
+        // ambil data user yang akan di export
+        $user = UserModel::select('level_id','username', 'nama', 'password')->get();
+        
+        // load library excel
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet(); // ambil sheet yang aktif
+
+        $sheet->setCellValue('A1', 'No');
+        $sheet->setCellValue('B1', 'Level ID');
+        $sheet->setCellValue('C1', 'Username');
+        $sheet->setCellValue('D1', 'Nama');
+        $sheet->setCellValue('E1', 'Password');
+
+        $sheet->getStyle('A1:F1')->getFont()->setBold(true); // bold header
+
+        // looping data yang telah diambil
+        $no = 1;        // nomor data dimulai dari 1
+        $baris = 2;     // baris data  dimulai dari baris ke 2
+
+        foreach ($user as $key => $value) {
+            $sheet->setCellValue('A'.$baris, $no);
+            $sheet->setCellValue('B'.$baris, $value->level_id);
+            $sheet->setCellValue('C'.$baris, $value->username);
+            $sheet->setCellValue('D'.$baris, $value->nama);
+            $sheet->setCellValue('E'.$baris, $value->password);
+            $baris++;
+            $no++;
+        }
+
+        // set tiap kolom untuk menyesuaikan dengan panjang karakter pada masing-masing kolom
+        foreach(range('A', 'E') as $columnID) {
+            $sheet->getColumnDimension($columnID)->setAutoSize(true); // set auto size untuk kolom
+        }
+
+        // set nama sheet dan proses untuk dapat di download
+        $sheet->setTitle('Data User'); // set nama sheet
+
+        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+        $filename = 'Data User '.date('Y-m-d H:i:s'). '.xlsx';
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="'. $filename .'"');
+        header('Cache-Control: max-age=0');
+        header('Cache-Control: max-age=1');
+        header('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Date in the past
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT'); // always modified
+        header('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+        header('Pragma: public'); // HTTP/1.0
+
+        $writer->save('php://output');
+        exit;
     }
 }
