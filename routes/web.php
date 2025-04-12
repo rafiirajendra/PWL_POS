@@ -41,6 +41,8 @@ Route::middleware(['auth'])->group(function(){ // semua route di dalam group ini
         Route::put('/barang/{id}/update_ajax', [BarangController::class, 'update_ajax']); // menyimpan perubahan data Barang Ajax
         Route::get('/barang/{id}/delete_ajax', [BarangController::class, 'confirm_ajax']); // untuk tampilkan form confirm delete Barang Ajax
         Route::delete('/barang/{id}/delete_ajax', [BarangController::class, 'delete_ajax']); // untuk menghapus data Barang Ajax
+        Route::get('/barang/import', [BarangController::class, 'import']); // Menampilkan halaman form import Barang
+        Route::post('/barang/import_ajax', [BarangController::class, 'import_ajax']); // menyimpan data Barang baru
     });
 
     // route user

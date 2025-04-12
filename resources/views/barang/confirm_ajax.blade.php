@@ -49,7 +49,7 @@
                     </table>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" data-dismiss="modal" class="btn btnwarning">Batal</button>
+                    <button type="button" data-dismiss="modal" class="btn btn-warning">Batal</button>
                     <button type="submit" class="btn btn-primary">Ya, Hapus</button>
                 </div>
             </div>
@@ -61,24 +61,31 @@
                 rules: {},
                 submitHandler: function (form) {
                     $.ajax({
-                        url: form.action, type: form.method, data: $(form).serialize(), success: function (response) {
+                        url: form.action,
+                        type: 'POST', // Pastikan ini POST
+                        data: $(form).serialize(),
+                        success: function (response) {
                             if (response.status) {
-                                $('#myModal').modal('hide'); Swal.fire({
-                                    icon: 'success', title: 'Berhasil', text: response.message
+                                $('#myModal').modal('hide');
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Berhasil',
+                                    text: response.message,
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                }).then(() => {
+                                    location.reload(); // Atau reload datatable jika pakai DataTable
                                 });
-                                $('#table_kategori').DataTable().ajax.reload(null, false);
                             } else {
-                                $('.error-text').text('');
-                                $.each(response.msgField, function (prefix, val) {
-                                    $('#error-' + prefix).text(val[0]);
-                                });
                                 Swal.fire({
                                     icon: 'error',
-                                    title: 'Terjadi Kesalahan', text: response.message
+                                    title: 'Terjadi Kesalahan',
+                                    text: response.message
                                 });
                             }
                         }
-                    }); return false;
+                    });
+                    return false;
                 },
                 errorElement: 'span',
                 errorPlacement: function (error, element) {
