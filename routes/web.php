@@ -44,6 +44,7 @@ Route::middleware(['auth'])->group(function(){ // semua route di dalam group ini
         Route::get('/barang/import', [BarangController::class, 'import']); // ajax form upload excel
         Route::post('/barang/import_ajax', [BarangController::class, 'import_ajax']); // Ajax import excel
         Route::get('/barang/export_excel', [BarangController::class, 'export_excel']); // Export excel
+        Route::get('/barang/export_pdf', [BarangController::class, 'export_pdf']); // Export pdf
     });
 
     // route user
