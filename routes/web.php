@@ -7,6 +7,7 @@ use App\Http\Controllers\LevelController;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\BarangController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProfileController;
 
 Route::pattern('id', '[0-9]+'); // ketika ada parameter {id}, maka harus berupa angka
 Route::get('login', [AuthController::class, 'login'])->name('login');
@@ -115,5 +116,9 @@ Route::middleware(['auth'])->group(function(){ // semua route di dalam group ini
         Route::post('/import_ajax', [KategoriController::class, 'import_ajax']); // Ajax import excel
         Route::get('/export_excel', [KategoriController::class, 'export_excel']); // Export excel
         Route::get('/export_pdf', [KategoriController::class, 'export_pdf']); // Export pdf
+    });
+
+    Route::group(['prefix' => 'profile'], function () {
+        Route::post('/update-avatar', [ProfileController::class, 'updateAvatar']);
     });
 });
