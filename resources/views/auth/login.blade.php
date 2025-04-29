@@ -37,13 +37,12 @@
                         <small id="error-username" class="error-text text-danger"></small>
                     </div>
                     <div class="input-group mb-3">
-                        <input type="password" id="password" name="password" class="form-control"
-                            placeholder="Password">
+                        <input type="password" id="password" name="password" class="form-control" placeholder="Password">
                         <div class="input-group-append">
                             <div class="input-group-text">
-                                <span class="fas fa-lock"></span>
+                                <span class="fas fa-eye" id="toggle-password" style="cursor: pointer;"></span>
                             </div>
-                        </div>
+                        </div>                        
                         <small id="error-password" class="error-text text-danger"></small>
                     </div>
                     <div class="row">
@@ -58,7 +57,8 @@
                         </div>
                         <!-- /.col -->
                     </div>
-                </form><a href="{{ url('register') }}">Daftar di sini</a>
+                </form><a>Tidak punya akun ya?</a>
+                <a href="{{ url('register') }}">Daftar di sini</a>
             </div>
             <!-- /.card-body -->
         </div>
@@ -140,6 +140,16 @@
                     $(element).removeClass('is-invalid');
                 }
             });
+        });
+
+        $('#toggle-password').on('click', function () {
+            const passwordInput = $('#password');
+            const icon = $(this);
+            const type = passwordInput.attr('type') === 'password' ? 'text' : 'password';
+            passwordInput.attr('type', type);
+
+            // Toggle icon class
+            icon.toggleClass('fa-eye fa-eye-slash');
         });
     </script>
 </body>

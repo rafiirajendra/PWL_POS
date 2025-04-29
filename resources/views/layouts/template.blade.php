@@ -91,15 +91,14 @@
                         <div class="preview-container">
                             <div class="row">
                                 <div class="col-6 text-center border-right">
-                                    <!-- Foto saat ini -->
-                                    @if (auth()->user()->photo)
-                                    <img src="{{ auth()->user()->foto_profil ? asset('storage/profile/' . auth()->user()->foto_profil) : asset('adminlte/dist/img/avatar.png') }}" 
-                                    class="img-circle elevation-2" alt="Current Avatar" id="currentAvatar" width="120" height="120">
-                                    @else
-                                    <img src="{{ auth()->user()->foto_profil ? asset('storage/profile/' . auth()->user()->foto_profil) : asset('adminlte/dist/img/avatar.png') }}" 
-                                    class="img-circle elevation-2" alt="User Image" id="currentAvatar" width="120" height="120">
-                                    @endif
-                                </div>
+                                    <p class="text-muted mb-2">Foto Sekarang</p>
+                                    <img src="{{ auth()->user()->foto_profil ? asset('storage/profile/' . auth()->user()->foto_profil) : 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Profile_avatar_placeholder_large.png' }}" 
+                                         class="img-circle elevation-2" 
+                                         alt="User Image" 
+                                         id="currentAvatar" 
+                                         width="{{ auth()->user()->photo ? '100' : '120' }}" 
+                                         height="{{ auth()->user()->photo ? '100' : '120' }}">
+                                </div>                                
                                 <div class="col-6 text-center">
                                     {{-- Preview foto baru yang akan diunggah --}}
                                     <p class="text-muted mb-2">Foto Baru</p>

@@ -57,6 +57,12 @@ class BarangController extends Controller
         return view('barang.create_ajax')->with('kategori', $kategori);
     }
 
+    public function show_ajax($id)
+    {
+        $barang = BarangModel::with('kategori')->find($id);
+        return view('barang.show_ajax', compact('barang'));
+    }
+
     public function store_ajax(Request $request)
     {
         if ($request->ajax() || $request->wantsJson()) {
@@ -93,9 +99,14 @@ class BarangController extends Controller
     {
         $barang = BarangModel::find($id);
         $level  = LevelModel::select('level_id', 'level_nama')->get();
-
-        return view('barang.edit_ajax', ['barang' => $barang, 'level' => $level]);
-    }
+        $kategori = KategoriModel::select('kategori_id', 'kategori_nama')->get(); // tambahkan ini
+    
+        return view('barang.edit_ajax', [
+            'barang'   => $barang,
+            'level'    => $level,
+            'kategori' => $kategori, // kirim ke view
+        ]);
+    }    
 
     public function update_ajax(Request $request, $id)
     {
